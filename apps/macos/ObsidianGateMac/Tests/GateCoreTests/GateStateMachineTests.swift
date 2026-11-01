@@ -5,11 +5,9 @@ final class GateStateMachineTests: XCTestCase {
     func testHappyPathRequiresChallengeAnswerAndBiometrics() throws {
         let machine = GateStateMachine(unlockDuration: 60)
         let now = Date(timeIntervalSince1970: 1_000)
+        let challengeID = UUID()
         XCTAssertEqual(try machine.send(.badgeDetected, now: now), .awaitingChallenge)
-        XCTAssertEqual(try machine.send(.challengePresented(id: UUID()), now: now), .awaitingAnswer(challengeID: {
-            if case .awaitingAnswer(let id) = machine.state { return id }
-            return UUID()
-        }()))
+        XCTAssertEqual(try machine.send(.challengePresented(id: challengeID), now: now), .awaitingAnswer(challengeID: challengeID))
         XCTAssertEqual(try machine.send(.answerAccepted, now: now), .awaitingBiometrics)
         XCTAssertEqual(try machine.send(.biometricSucceeded, now: now), .unlocked(until: now.addingTimeInterval(60)))
     }
