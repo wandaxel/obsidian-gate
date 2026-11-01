@@ -1,7 +1,7 @@
 const esbuild = require("esbuild");
 const fs = require("fs");
 const path = require("path");
-const zlib = require("zlib");
+const { deflateForInline, deflateJsonForInline, inlineBytesModule } = require("./deflate-inline.cjs");
 
 const isWatch = process.argv.includes("--watch");
 const isProd = process.argv.includes("--prod");
@@ -62,18 +62,41 @@ const deflateWasmPlugin = {
   setup(build) {
     build.onLoad({ filter: /\.wasm$/ }, (args) => {
       const raw = fs.readFileSync(args.path);
-      const deflated = zlib.deflateSync(raw, { level: zlib.constants.Z_BEST_COMPRESSION });
-      const base64 = deflated.toString("base64");
+      const deflated = deflateForInline(raw);
       return {
         loader: "js",
-        contents:
-          `// ${path.basename(args.path)}: ${formatBytes(raw.length)} raw -> ` +
-          `${formatBytes(deflated.length)} deflated (inlined as base64 by build)\n` +
-          `const base64 = ${JSON.stringify(base64)};\n` +
-          `const bytes = typeof Buffer !== "undefined"\n` +
-          `  ? new Uint8Array(Buffer.from(base64, "base64"))\n` +
-          `  : Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));\n` +
-          `export default bytes;\n`,
+        contents: inlineBytesModule(
+          deflated,
+          `${path.basename(args.path)}: ${formatBytes(raw.length)} raw -> ` +
+            `${formatBytes(deflated.length)} deflated (inlined as base64 by build)`,
+        ),
+      };
+    });
+  },
+};
+
+/**
+ * Inline the community locales (fr, es, ja) the same way.
+ *
+ * Obsidian and BRAT install only main.js, manifest.json and styles.css, so a
+ * locales/ folder beside the plugin never reaches a store install: those
+ * languages silently fell back to English. Bundling them as plain JSON would
+ * add ~464 KB to main.js; deflated they cost ~147 KB. translator.ts inflates
+ * only the locale actually in use, the first time it is needed.
+ */
+const deflateCommunityLocalesPlugin = {
+  name: "deflate-community-locales-inline",
+  setup(build) {
+    build.onLoad({ filter: /[\\/]translations[\\/]locales[\\/]community[\\/][a-z-]+\.json$/ }, (args) => {
+      const raw = fs.readFileSync(args.path);
+      const deflated = deflateJsonForInline(raw);
+      return {
+        loader: "js",
+        contents: inlineBytesModule(
+          deflated,
+          `locale ${path.basename(args.path)}: ${formatBytes(raw.length)} raw -> ` +
+            `${formatBytes(deflated.length)} deflated (inlined as base64 by build)`,
+        ),
       };
     });
   },
@@ -155,7 +178,7 @@ async function build() {
     outfile: path.join(outdir, "main.js"),
     external,
     logLevel: "info",
-    plugins: [deflateWasmPlugin],
+    plugins: [deflateWasmPlugin, deflateCommunityLocalesPlugin],
 
     // esbuild defaults to charset "ascii", which escapes every non-ASCII
     // character as \uXXXX. The bundled translations are mostly CJK, so that

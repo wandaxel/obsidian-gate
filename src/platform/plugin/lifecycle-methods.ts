@@ -561,8 +561,9 @@ export function WithLifecycleMethods<T extends Constructor<LearnKitPluginBase>>(
           this._reminderEngine?.start();
         });
 
-        // Wire up locale file reader and preload any community locales
-        // that are shipped alongside the plugin (fr, ja, es).
+        // Wire up locale file reader and preload any locales/<code>.json
+        // override in the plugin folder. fr, ja and es also ship inside
+        // main.js, so a store install (no locales/ folder) still has them.
         {
           const adapter = this.app?.vault?.adapter;
           const configDir = this.app?.vault?.configDir;

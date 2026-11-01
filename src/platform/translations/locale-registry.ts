@@ -177,9 +177,10 @@ export function getInterfaceLocaleLabel(code: string): string {
 }
 
 /**
- * Returns true when the locale is bundled statically (no download needed).
- * Non-builtin locales are shipped as separate JSON files in `locales/`
- * and loaded on demand.
+ * Returns true when the locale is bundled as plain JSON.
+ * Non-builtin (community) locales ship inside main.js deflated and are
+ * inflated on first use; a `locales/<code>.json` file in the plugin folder
+ * overrides them (see translator.ts).
  */
 export function isBuiltinLocale(code: string): boolean {
   const candidate = normaliseInterfaceLocale(code);

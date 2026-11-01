@@ -82,6 +82,8 @@ UI strings are wrapped with `t(locale, "token.key", "English fallback")`. At bui
    - any terms that need glossary discussion
 5. A reviewer (a second native or proficient speaker) comments on the PR with feedback. Address any suggestions and push updates until approved.
 
+To see an edited `fr.json`, `es.json` or `ja.json` in Obsidian without rebuilding, copy it to `<vault>/.obsidian/plugins/learnkit/locales/` and restart Obsidian: a file there overrides the copy shipped inside `main.js`.
+
 ### Step 2 — Reviewer approves
 
 The reviewer checks for:
@@ -96,7 +98,7 @@ The reviewer checks for:
 After review approval the maintainer:
 
 1. Adds the locale entry to the registry in `src/platform/translations/locale-registry.ts`.
-2. Imports the new JSON file in `src/platform/translations/translator.ts` and adds it to the `MESSAGE_BUNDLES` map.
+2. Imports the new JSON file in `src/platform/translations/translator.ts` and adds it to the `MESSAGE_BUNDLES` map, or, for a file in `locales/community/`, to `EMBEDDED_COMMUNITY_LOCALES` (the build inlines those deflated to keep `main.js` small).
 3. Runs lint, tests, and build to verify.
 4. Merges the PR.
 

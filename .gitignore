@@ -39,3 +39,5 @@ tooling/*
 !tooling/postcss-expand-hex.cjs
 # Required by tooling/postcss.config.cjs - must ship or `npm run build` fails in CI.
 !tooling/postcss-scope-global-roots.cjs
+# Required by tooling/esbuild.config.js - must ship or `npm run build` fails in CI.
+!tooling/deflate-inline.cjs
