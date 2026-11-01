@@ -16,7 +16,10 @@ From this directory:
 ```sh
 swift test
 swift build
+swift run GatePrototype
 ```
+
+`GatePrototype` opens a small SwiftUI window. It starts USB monitoring on launch, lets you simulate the badge/challenge step, and invokes the real Touch ID prompt only after the demo answer is accepted. The answer itself is simulated; the Chameleon RFID protocol is not yet connected.
 
 The package is macOS-only because it imports LocalAuthentication and IOKit.
 
