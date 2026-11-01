@@ -76,5 +76,7 @@ Ce dossier rassemble les décisions produit, le cahier des charges, les recherch
 - Branche de travail : `project/obsidian-gate-foundation`.
 - Premier document produit : `OBSIDIAN-GATE-MVP.md`.
 - CDCF badge / Touch ID : `CDCF-OBSIDIAN-GATE.md`.
-- Aucun code de lecteur badge ni de déverrouillage Touch ID n'est encore implémenté dans ce dépôt à ce stade. Le POC SwiftUI antérieur est distinct du fork LearnKit et ne constitue pas l'intégration matérielle.
-- Prochaine action technique : exécuter la baseline, puis créer les POC séparés Touch ID et Chameleon avant de les assembler.
+- POC macOS ajouté dans `apps/macos/ObsidianGateMac` : Touch ID via LocalAuthentication, découverte USB IOKit, machine à états Gate et premiers tests XCTest.
+- La découverte USB observe les périphériques IOUSBHost ; elle ne parle pas encore au protocole Chameleon et ne lance pas de scan RFID. VID/PID du Chameleon à relever sur le Mac réel avant filtrage.
+- Les tests XCTest et la compilation Swift doivent encore être exécutés sur macOS ; aucune réussite de build n'est revendiquée.
+- Prochaine action technique : valider `swift test` / `swift build` sur le Mac cible, relever VID/PID/firmware du Chameleon V3, puis implémenter l'adaptateur protocole documenté.
